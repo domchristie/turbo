@@ -8,6 +8,10 @@ export interface ViewDelegate<S extends Snapshot> {
   viewInvalidated(): void
 }
 
+type RenderOptions = {
+  skipSnapshotRendering?: boolean
+}
+
 export abstract class View<E extends Element, S extends Snapshot<E> = Snapshot<E>, R extends Renderer<E, S> = Renderer<E, S>, D extends ViewDelegate<S> = ViewDelegate<S>> {
   readonly delegate: D
   readonly element: E
@@ -56,11 +60,13 @@ export abstract class View<E extends Element, S extends Snapshot<E> = Snapshot<E
         this.renderer = renderer
         this.prepareToRenderSnapshot(renderer)
 
-        const renderInterception = new Promise(resolve => this.resolveRenderPromise = resolve)
+        const renderInterception: Promise<RenderOptions> = new Promise(resolve => this.resolveRenderPromise = resolve)
         const immediateRender = this.delegate.allowsImmediateRender(snapshot, this.resolveRenderPromise)
-        if (!immediateRender) await renderInterception
 
-        await this.renderSnapshot(renderer)
+        let skipSnapshotRendering: boolean | undefined
+        if (!immediateRender) ({ skipSnapshotRendering } = await renderInterception || {})
+        if (!skipSnapshotRendering) await this.renderSnapshot(renderer)
+
         this.delegate.viewRenderedSnapshot(snapshot, isPreview)
         this.finishRenderingSnapshot(renderer)
       } finally {
