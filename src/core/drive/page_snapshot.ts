@@ -13,7 +13,7 @@ export class PageSnapshot extends Snapshot<HTMLBodyElement> {
   }
 
   static fromDocument({ head, body }: Document) {
-    return new this(body as HTMLBodyElement, new HeadSnapshot(head))
+    return new this((body.cloneNode(true)) as HTMLBodyElement, new HeadSnapshot(head))
   }
 
   readonly headSnapshot: HeadSnapshot
