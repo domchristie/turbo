@@ -120,8 +120,9 @@ export class Navigator {
     this.delegate.visitCompleted(visit)
   }
 
-  locationWithActionIsSamePage(location: URL, action: Action): boolean {
-    return getRequestURL(location) === getRequestURL(this.view.lastRenderedLocation) &&
+  locationWithActionIsSamePage(location: URL, action?: Action): boolean {
+    return action !== "replace" &&
+      getRequestURL(location) === getRequestURL(this.view.lastRenderedLocation) &&
       (getAnchor(location) != null || action == "restore")
   }
 
