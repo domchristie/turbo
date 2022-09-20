@@ -195,18 +195,18 @@ export class Session
     const action = this.getActionForLink(link)
     const acceptsStreamResponse = link.hasAttribute("data-turbo-stream")
 
-    this.visit(location.href, { action, acceptsStreamResponse })
+    this.visit(location.href, { action, acceptsStreamResponse, initiator: link })
   }
 
   // Navigator delegate
 
-  allowsVisitingLocationWithAction(location: URL, action?: Action) {
-    return this.locationWithActionIsSamePage(location, action) || this.applicationAllowsVisitingLocation(location)
+  allowsVisitingLocation(location: URL, options: Partial<VisitOptions> = {}) {
+    return this.locationWithActionIsSamePage(location, options.action) || this.applicationAllowsVisitingLocation(location, options)
   }
 
   visitProposedToLocation(location: URL, options: Partial<VisitOptions>) {
     extendURLWithDeprecatedProperties(location)
-    this.adapter.visitProposedToLocation(location, options)
+    this.adapter.visitProposedToLocation(location, this.sanitizeVisitOptionsForTransfer(options))
   }
 
   visitStarted(visit: Visit) {
@@ -215,7 +215,7 @@ export class Session
     }
     extendURLWithDeprecatedProperties(visit.location)
     if (!visit.silent) {
-      this.notifyApplicationAfterVisitingLocation(visit.location, visit.action)
+      this.notifyApplicationAfterVisitingLocation(visit.location, visit.action, visit.initiator)
     }
   }
 
@@ -320,8 +320,8 @@ export class Session
     return !event.defaultPrevented
   }
 
-  applicationAllowsVisitingLocation(location: URL) {
-    const event = this.notifyApplicationBeforeVisitingLocation(location)
+  applicationAllowsVisitingLocation(location: URL, options: Partial<VisitOptions> = {}) {
+    const event = this.notifyApplicationBeforeVisitingLocation(location, options.initiator)
     return !event.defaultPrevented
   }
 
@@ -333,15 +333,19 @@ export class Session
     })
   }
 
-  notifyApplicationBeforeVisitingLocation(location: URL) {
+  notifyApplicationBeforeVisitingLocation(location: URL, element?: Element) {
     return dispatch<TurboBeforeVisitEvent>("turbo:before-visit", {
+      target: element,
       detail: { url: location.href },
       cancelable: true,
     })
   }
 
-  notifyApplicationAfterVisitingLocation(location: URL, action: Action) {
-    return dispatch<TurboVisitEvent>("turbo:visit", { detail: { url: location.href, action } })
+  notifyApplicationAfterVisitingLocation(location: URL, action: Action, element?: Element) {
+    return dispatch<TurboVisitEvent>("turbo:visit", {
+      target: element,
+      detail: { url: location.href, action }
+    })
   }
 
   notifyApplicationBeforeCachingSnapshot() {
@@ -422,6 +426,11 @@ export class Session
         return false
       }
     }
+  }
+
+  sanitizeVisitOptionsForTransfer (options: Partial<VisitOptions>) {
+    delete options.initiator
+    return options
   }
 
   // Private
