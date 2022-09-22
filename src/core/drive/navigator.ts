@@ -27,8 +27,9 @@ export class Navigator {
   proposeVisit(location: URL, options: Partial<VisitOptions> = {}) {
     if (this.delegate.allowsVisitingLocation(location, options)) {
       if (locationIsVisitable(location, this.view.snapshot.rootLocation)) {
-        this.currentInitiator = options.initiator
-        this.delegate.visitProposedToLocation(location, options)
+        this.withInitiator(options.initiator, () => {
+          this.delegate.visitProposedToLocation(location, options)
+        })
       } else {
         window.location.href = location.toString()
       }
@@ -174,5 +175,17 @@ export class Navigator {
     const { formElement, submitter } = formSubmission
     const action = getAttribute("data-turbo-action", submitter, formElement)
     return isAction(action) ? action : "advance"
+  }
+
+  // Private
+
+  withInitiator(initiator: Element | undefined, callback: () => void) {
+    this.currentInitiator = initiator
+    try {
+      callback.call(this)
+    } catch (error) {
+    } finally {
+      delete this.currentInitiator
+    }
   }
 }
