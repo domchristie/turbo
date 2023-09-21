@@ -36,6 +36,12 @@ export const SystemStatusCode = {
   contentTypeMismatch: -2
 }
 
+export const Direction = {
+  advance: "forward",
+  restore: "back",
+  replace: "none"
+}
+
 export class Visit {
   identifier = uuid() // Required by turbo-ios
   timingMetrics = {}
@@ -66,6 +72,7 @@ export class Visit {
       updateHistory,
       shouldCacheSnapshot,
       acceptsStreamResponse,
+      direction
       initiator
     } = {
       ...defaultOptions,
@@ -84,6 +91,7 @@ export class Visit {
     this.scrolled = !willRender
     this.shouldCacheSnapshot = shouldCacheSnapshot
     this.acceptsStreamResponse = acceptsStreamResponse
+    this.direction = direction || Direction[action]
     this.initiator = initiator
   }
 
