@@ -72,7 +72,7 @@ export class Visit {
       updateHistory,
       shouldCacheSnapshot,
       acceptsStreamResponse,
-      direction
+      direction,
       initiator
     } = {
       ...defaultOptions,

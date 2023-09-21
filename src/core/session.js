@@ -319,7 +319,7 @@ export class Session {
   }
 
   notifyApplicationAfterVisitingLocation(location, action, direction, target) {
-    return dispatch("turbo:visit", { detail: { url: location.href, action, direction, target } })
+    return dispatch("turbo:visit", { target, detail: { url: location.href, action, direction } })
   }
 
   notifyApplicationBeforeCachingSnapshot() {
