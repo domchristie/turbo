@@ -72,7 +72,8 @@ export class Visit {
       updateHistory,
       shouldCacheSnapshot,
       acceptsStreamResponse,
-      direction
+      direction,
+      initiator
     } = {
       ...defaultOptions,
       ...options
@@ -91,6 +92,7 @@ export class Visit {
     this.shouldCacheSnapshot = shouldCacheSnapshot
     this.acceptsStreamResponse = acceptsStreamResponse
     this.direction = direction || Direction[action]
+    this.initiator = initiator
   }
 
   get adapter() {
@@ -166,7 +168,7 @@ export class Visit {
     if (this.hasPreloadedResponse()) {
       this.simulateRequest()
     } else if (this.shouldIssueRequest() && !this.request) {
-      this.request = new FetchRequest(this, FetchMethod.get, this.location)
+      this.request = new FetchRequest(this, FetchMethod.get, this.location, undefined, this.initiator)
       this.request.perform()
     }
   }
