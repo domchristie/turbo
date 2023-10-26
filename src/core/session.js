@@ -194,7 +194,9 @@ export class Session {
 
   visitCompleted(visit) {
     clearBusyState(document.documentElement)
-    this.notifyApplicationAfterPageLoad(visit.getTimingMetrics())
+    if (!visit.silent) {
+      this.notifyApplicationAfterPageLoad(visit.getTimingMetrics())
+    }
   }
 
   locationWithActionIsSamePage(location, action) {
@@ -250,6 +252,8 @@ export class Session {
   }
 
   allowsImmediateRender({ element }, isPreview, options) {
+    if (this.navigator.currentVisit?.silent) return true
+
     const event = this.notifyApplicationBeforeRender(element, isPreview, options)
     const {
       defaultPrevented,
@@ -265,7 +269,9 @@ export class Session {
 
   viewRenderedSnapshot(_snapshot, isPreview) {
     this.view.lastRenderedLocation = this.history.location
-    this.notifyApplicationAfterRender(isPreview)
+    if (!this.navigator.currentVisit?.silent) {
+      this.notifyApplicationAfterRender(isPreview)
+    }
   }
 
   preloadOnLoadLinksForView(element) {

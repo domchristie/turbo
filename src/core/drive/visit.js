@@ -102,7 +102,7 @@ export class Visit {
   }
 
   get silent() {
-    return this.isSamePage
+    return this.isSamePage || !this.willRender
   }
 
   start() {
@@ -130,10 +130,8 @@ export class Visit {
       this.state = VisitState.completed
       this.followRedirect()
 
-      if (!this.followedRedirect) {
-        this.adapter.visitCompleted(this)
-        this.delegate.visitCompleted(this)
-      }
+      this.adapter.visitCompleted(this)
+      this.delegate.visitCompleted(this)
     }
   }
 
