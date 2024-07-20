@@ -127,20 +127,10 @@ export class Navigator {
     this.delegate.visitCompleted(visit)
   }
 
+  // Same-page links are no longer handled with a Visit.
+  // This method is still needed for Turbo Native adapters.
   locationWithActionIsSamePage(location, action) {
-    const anchor = getAnchor(location)
-    const currentAnchor = getAnchor(this.view.lastRenderedLocation)
-    const isRestorationToTop = action === "restore" && typeof anchor === "undefined"
-
-    return (
-      action !== "replace" &&
-      getRequestURL(location) === getRequestURL(this.view.lastRenderedLocation) &&
-      (isRestorationToTop || (anchor != null && anchor !== currentAnchor))
-    )
-  }
-
-  visitScrolledToSamePageLocation(oldURL, newURL) {
-    this.delegate.visitScrolledToSamePageLocation(oldURL, newURL)
+    return false
   }
 
   // Visits
