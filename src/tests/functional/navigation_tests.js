@@ -447,7 +447,7 @@ test("navigating back whilst a visit is in-flight", async ({ page }) => {
 
   assert.ok(
     await nextEventNamed(page, "turbo:visit"),
-    "navigating back whilst a visit is in-flight starts a non-silent Visit"
+    "navigating back whilst a visit is in-flight starts a Visit"
   )
 
   await nextBody(page)
