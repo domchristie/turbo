@@ -189,6 +189,10 @@ export class Session {
     }
   }
 
+  historyPoppedWithEmptyState(location) {
+    this.#reconcileEmptyHistoryEntry(location)
+  }
+
   // Scroll observer delegate
 
   scrollPositionChanged(position) {
@@ -232,7 +236,7 @@ export class Session {
   // Navigator delegate
 
   allowsVisitingLocationWithAction(location, action) {
-    return this.locationWithActionIsSamePage(location, action) || this.applicationAllowsVisitingLocation(location)
+    return this.applicationAllowsVisitingLocation(location)
   }
 
   visitProposedToLocation(location, options) {
@@ -467,6 +471,12 @@ export class Session {
 
   get snapshot() {
     return this.view.snapshot
+  }
+
+  #reconcileEmptyHistoryEntry(location) {
+    this.history.replace(location)
+    this.view.lastRenderedLocation = location
+    this.view.cacheSnapshot()
   }
 }
 
